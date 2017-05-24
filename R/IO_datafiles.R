@@ -337,6 +337,14 @@ read_SOILWAT2_FileDefaults <- function(dir_in_sw, swFiles_tag = "file") {
   # 'swDataFromFiles' acts as the basis for all runs
   swDataFromFiles <- rSOILWAT2::sw_inputDataFromFiles(dir = dir_in_sw,
     files.in = swFilesIn)
+  print("DIRECTORY AND FILE FROM IO_datafile.R")
+  print(" ")
+  print(dir_in_sw)
+  print("----")
+  print(swFilesIn)
+  print(" ")
+  print("END OF IO DIRECTORY")
+
 
   # we don't need the example weather data; the code will get weather data separately
   if (length(swDataFromFiles@weatherHistory) > 0)
@@ -489,6 +497,8 @@ process_inputs <- function(project_paths, fnames_in, use_preprocin = TRUE, verbo
     sw_input_cloud_use <- temp[["use"]]
     sw_input_cloud <- temp[["data"]]
     sw_input_cloud <- fix_rowlabels(sw_input_cloud, SWRunInformation)
+    print("#### below is sw_input_cloud from IO_datafiles #######")
+    print(sw_input_cloud)
 
     temp <- tryCatch(SFSW2_read_inputfile(fnames_in[["fvegetation"]],
       nrowsClasses = nrowsClasses), error = print)
@@ -553,6 +563,9 @@ process_inputs <- function(project_paths, fnames_in, use_preprocin = TRUE, verbo
     tr_soil <- load_Rsw_treatment_templates(project_paths, create_treatments, "soilsin", "swSoils")
     tr_weather <- load_Rsw_treatment_templates(project_paths, create_treatments, "weathersetupin", "swWeather")
     tr_cloud <- load_Rsw_treatment_templates(project_paths, create_treatments, "cloudin", "swCloud")
+    print("#################### in processInputs func in rSFSW2/R/IO)datafiles.R ############")
+    print(tr_cloud)
+    print("################ end processInputs ###########")
 
     tr_input_climPPT <- tr_input_climTemp <- tr_input_shiftedPPT <- list()
     tr_input_EvapCoeff <- tr_input_TranspCoeff_Code <- tr_input_TranspCoeff <- list()

@@ -31,6 +31,8 @@ update_meanmonthlyclimate_input <- function(MMC, use_site, sim_size, digits = 2,
     round(MMC[["data"]][use_site, "wind", ], digits)
 
   #write data to disk
+  print("file = ")
+  print(fnames_in[["fclimnorm"]])
   utils::write.csv(reconstitute_inputfile(MMC[["use"]], MMC[["input"]]),
     file = fnames_in[["fclimnorm"]], row.names = FALSE)
   unlink(fnames_in[["fpreprocin"]])
@@ -44,7 +46,12 @@ update_meanmonthlyclimate_input <- function(MMC, use_site, sim_size, digits = 2,
 #'  May 2010.
 do_ExtractSkyDataFromNOAAClimateAtlas_USA <- function(MMC, sim_size, sim_space,
   project_paths, fnames_in, opt_chunks, resume, verbose) {
-
+  print("##################################")
+  print("in extractSkyData")
+  
+  print("file = ")
+  print(fnames_in[["fclimnorm"]])
+  
   if (verbose) {
     t1 <- Sys.time()
     temp_call <- shQuote(match.call()[1])
@@ -78,13 +85,17 @@ do_ExtractSkyDataFromNOAAClimateAtlas_USA <- function(MMC, sim_size, sim_space,
     # NOAA Climate Atlas: provides no information on height above ground: assuming 2-m
     # which is what is required by SOILWAT2
     dir.ex.dat <- file.path(project_paths[["dir_ex_weather"]], "ClimateAtlasUS")
+    print(project_paths[["dir_ex_weather"]])
+    print(dir.ex.dat)
     stopifnot(file.exists(dir.ex.dat))
-
+    
     dir_noaaca <- list(
       RH = file.path(dir.ex.dat, "HumidityRelative_Percent"),
       cover = file.path(dir.ex.dat, "Sunshine_Percent"),
       # cover = file.path(dir.ex.dat, "SkyCoverDay_Percent"),
       wind = file.path(dir.ex.dat, "WindSpeed_mph"))
+    
+    print("#########################")
 
     files_shp <- list(
       RH = paste0("RH23", formatC(SFSW2_glovars[["st_mo"]], width = 2, format = "d",
@@ -210,11 +221,15 @@ do_ExtractSkyDataFromNOAAClimateAtlas_USA <- function(MMC, sim_size, sim_space,
       if (verbose)
         print(paste("Data from 'NCDC2005_USA' was extracted for n =", sum(i_good),
           "out of", n_extract, "sites"))
+      print("MMC, i_good, sim_size")
+      print(MMC)
+      print(i_good)
+      print(sim_size)
 
       MMC <- update_meanmonthlyclimate_input(MMC, i_good, sim_size, digits = 2, fnames_in)
     }
   }
-
+  MMCGlobal <<- MMC # REMOVE
   MMC
 }
 
@@ -243,7 +258,9 @@ do_ExtractSkyDataFromNOAAClimateAtlas_USA <- function(MMC, sim_size, sim_space,
 #' @export
 do_ExtractSkyDataFromNCEPCFSR_Global <- function(MMC, SWRunInformation, SFSW2_prj_meta,
   opt_parallel, opt_chunks, resume, verbose) {
-
+  
+  print("######### in do_ExtractSkyDataFromNCEPCFSR_Global #########")
+  
   if (verbose) {
     t1 <- Sys.time()
     temp_call <- shQuote(match.call()[1])
@@ -307,7 +324,7 @@ do_ExtractSkyDataFromNCEPCFSR_Global <- function(MMC, SWRunInformation, SFSW2_pr
     if (inherits(temp, "try-error"))
       stop(temp)
 
-    #match weather folder names in case of missing extractions
+    # match weather folder names in case of missing extractions
     res <- as.matrix(temp[["res_clim"]][, -1])
     irow <- match(locations[, "WeatherFolder"],
       table = temp[["res_clim"]][, "WeatherFolder"], nomatch = 0)
@@ -341,6 +358,8 @@ do_ExtractSkyDataFromNCEPCFSR_Global <- function(MMC, SWRunInformation, SFSW2_pr
 #' @export
 ExtractData_MeanMonthlyClimate <- function(exinfo, SFSW2_prj_meta, SFSW2_prj_inputs,
   opt_parallel, opt_chunks, resume = FALSE, verbose = FALSE) {
+  print("################################################3")
+  print("In extractData_MeanMonthlyclimate.R")
 
   field_sources <- "ClimateNormals_source"
   field_include <- "Include_YN_ClimateNormalSources"
@@ -364,6 +383,9 @@ ExtractData_MeanMonthlyClimate <- function(exinfo, SFSW2_prj_meta, SFSW2_prj_inp
 
   }
 
+  print("entering update_datasource_masterfield")
+  print(SFSW2_prj_inputs[["SWRunInformation"]])
+  print(field_sources)
   SFSW2_prj_inputs[["SWRunInformation"]] <- update_datasource_masterfield(MMC,
     sim_size = SFSW2_prj_meta[["sim_size"]], SFSW2_prj_inputs[["SWRunInformation"]],
     SFSW2_prj_meta[["fnames_in"]], field_sources, field_include)

@@ -203,8 +203,11 @@ populate_rSFSW2_project_with_data <- function(SFSW2_prj_meta, opt_behave, opt_pa
         SFSW2_prj_meta[["exinfo"]][["ExtractElevation_HWSD_Global"]])) ||
       (todo_intracker(SFSW2_prj_meta, "climnorm_data", "prepared") &&
         (SFSW2_prj_meta[["exinfo"]][["ExtractSkyDataFromNOAAClimateAtlas_USA"]] ||
-        SFSW2_prj_meta[["exinfo"]][["ExtractSkyDataFromNCEPCFSR_Global"]]))
-
+        SFSW2_prj_meta[["exinfo"]][["ExtractSkyDataFromNCEPCFSR_Global"]])) #||
+      # (todo_intracker(SFSW2_prj_meta, "climnorm_data", "prepared") &&
+      #    (SFSW2_prj_meta[["exinfo"]][["GriddedDailyWeatherFromUoIMetdata"]] ||
+      #     SFSW2_prj_meta[["exinfo"]][["ExtractSkyDataFromNCEPCFSR_Global"]]))
+    
     SFSW2_prj_meta <- setup_spatial_simulation(SFSW2_prj_meta, SFSW2_prj_inputs,
       use_sim_spatial = SFSW2_prj_meta[["use_sim_spatial"]])
 
@@ -381,6 +384,9 @@ populate_rSFSW2_project_with_data <- function(SFSW2_prj_meta, opt_behave, opt_pa
 
 
   #--- Mean monthly climate data
+  print("in mean monthly climate data simulation_project")
+  print(SFSW2_prj_meta[["exinfo"]][["ExtractSkyDataFromNOAAClimateAtlas_USA"]])
+  print(SFSW2_prj_meta[["exinfo"]][["GriddedDailyWeatherFromUoIMetdata"]])
   if (SFSW2_prj_meta[["exinfo"]][["ExtractSkyDataFromNOAAClimateAtlas_USA"]] ||
     SFSW2_prj_meta[["exinfo"]][["ExtractSkyDataFromNCEPCFSR_Global"]]) {
 
@@ -394,9 +400,16 @@ populate_rSFSW2_project_with_data <- function(SFSW2_prj_meta, opt_behave, opt_pa
         tracker = "climnorm_data", prepared = TRUE)
     }
 
-  } else {
+  }
+  # else if(SFSW2_prj_meta[["exinfo"]][["GriddedDailyWeatherFromUoIMetdata"]]){
+  #   # TODO: make this so it gets data for daily humidity and wind speed
+  # }
+  else {
     SFSW2_prj_meta[["input_status"]] <- update_intracker(SFSW2_prj_meta[["input_status"]],
       tracker = "climnorm_data", prepared = NA, checked = NA)
+    print('SFSW2_prj_meta[["input_status"]]')
+    print(SFSW2_prj_meta[["input_status"]])
+    print(SFSW2_prj_inputs[["SWRunInformation"]])
   }
 
 

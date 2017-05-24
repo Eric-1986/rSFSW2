@@ -421,8 +421,12 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
       }
       #relative humidity
       if (any(sw_input_cloud_use[grepl("RH", names(sw_input_cloud_use))])) {
+        cat("\n\n")
+        print("relative humidity in simulation_run.R")
         rh <- with(i_sw_input_cloud, data.frame(RH_1, RH_2, RH_3, RH_4, RH_5, RH_6, RH_7, RH_8, RH_9, RH_10, RH_11, RH_12))
         rSOILWAT2::swCloud_Humidity(swRunScenariosData[[1]]) <- round(as.double(rh), 0)
+        print(rh)
+        cat("\n\n")
       }
       #snow density
       if (any(sw_input_cloud_use[grepl("snowd", names(sw_input_cloud_use))])) {
@@ -741,6 +745,9 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
                     create_filename_for_Maurer2002_NorthAmerica(X_WGS84, Y_WGS84)),
                   startYear = isim_time[["simstartyr"]],
                   endYear = isim_time[["endyr"]])
+        print("Maurer2002_NorthAmerica: i_sw_weatherList[[1]]")
+        print(i_sw_weatherList[[1]])
+        print("end of i_sw_weatherList[[1]]")
 
       } else if (i_SWRunInformation$dailyweather_source == "DayMet_NorthAmerica") {
         i_sw_weatherList[[1]] <- with(i_SWRunInformation,
@@ -749,6 +756,9 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
             site_ids = NULL,
             coords_WGS84 = c(X_WGS84, Y_WGS84),
             start_year = isim_time[["simstartyr"]], end_year = isim_time[["endyr"]]))
+        print("DayMet_NorthAmerica: i_sw_weatherList[[1]]")
+        print(i_sw_weatherList[[1]])
+        print("end of i_sw_weatherList[[1]]")
 
       } else if (i_SWRunInformation$dailyweather_source == "LookupWeatherFolder") {
         # Read weather data from folder
@@ -758,6 +768,9 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
             fnames_out[["dbOutput"]]), filebasename = opt_sim[["tag_WeatherFolder"]],
           startYear = isim_time[["simstartyr"]], endYear = isim_time[["endyr"]]),
           silent = TRUE)
+        print("LookupWeatherFolder: i_sw_weatherList[[1]]")
+        print(i_sw_weatherList[[1]])
+        print("end of i_sw_weatherList[[1]]")
       }
 
     } else {
@@ -797,12 +810,29 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
       } else {
         if (prj_todos[["need_cli_means"]]) {
           if (opt_verbosity[["print.debug"]]) print("Start of get SiteClimate")
+          print("about to enter potentially broken code")
           do.C4vars <- any(create_treatments == "PotentialNaturalVegetation_CompositionShrubsC3C4_Paruelo1996") || prj_todos[["aon"]]$dailyC4_TempVar
+          print("under do.C4vars")
+          print(environment())
           #redo SiteClimate_Ambient
           SiteClimate_Ambient <- calc_SiteClimate(weatherList = i_sw_weatherList[[1]],
             year.start = min(isim_time$useyrs), year.end = max(isim_time$useyrs),
             do.C4vars = do.C4vars, simTime2 = simTime2)
+          # print("i_sw_weatherList")
+          # print(i_sw_weatherList)
+          # print("year.start")
+          # print(min(isim_time$useyrs))
+          # print("year.end")
+          # print(max(isim_time$useyrs))
+          # print("do.C4vars")
+          # print(do.C4vars)
+          # print("simTime2")
+          # print(simTime2)
+          # print(SiteClimate_Ambient) # TODO: REMOVE THIS
+          # print(SiteClimate_Ambient$meanMonthlyTempC)
+          # print("End of get SiteClimate")
         }
+        print("out of if statement")
       }
       if (!opt_sim[["use_dbW_future"]]) {
         #get climate change information
@@ -895,6 +925,8 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
           SiteClimate_Scenario$meanMonthlyPPTcm <- SiteClimate_Ambient$meanMonthlyPPTcm * ppt_f
           tmean_f <- apply(cbind(t_min_f, t_max_f), MARGIN = 1, FUN = mean)
           SiteClimate_Scenario$meanMonthlyTempC <- SiteClimate_Ambient$meanMonthlyTempC + tmean_f
+          print("siteClimate_Scenario$meanMonthlyTempC")
+          print(SiteClimate_Scenario$meanMonthlyTempC) # TODO: REMOVE LINE
           SiteClimate_Scenario$minMonthlyTempC <- SiteClimate_Ambient$minMonthlyTempC + t_min_f
           SiteClimate_Scenario$maxMonthlyTempC <- SiteClimate_Ambient$maxMonthlyTempC + t_max_f
           SiteClimate_Scenario$MAP_cm <- sum(SiteClimate_Scenario$meanMonthlyPPTcm)
@@ -1011,8 +1043,10 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
       #anything that depends on weather
       #------3. Step: Lookup or extract external information that needs to be executed for each run
       if (opt_verbosity[["print.debug"]]) print("Start of set soil temperature")
+      print('past if')
       #TODO get this working LOW PR
       if (prj_todos[["EstimateConstantSoilTemperatureAtUpperAndLowerBoundaryAsMeanAnnualAirTemperature"]]) {
+        print('in if 2')
         soilTlower <- mean(SiteClimate_Scenario$meanMonthlyTempC)
         soilTUpper <- max(-1, mean(SiteClimate_Scenario$meanMonthlyTempC[c(1, 12)]))
         #temporaly save data
@@ -1020,22 +1054,32 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
         #utils::write.csv(out.temp, file = file.path(project_paths[["dir_out_temp"]], flag.icounter, "_", "SoilTempC_atLowerBoundary.csv"), quote = FALSE, row.names = FALSE)
       }
       if (sw_input_site_use["SoilTempC_atUpperBoundary"]) {
+        print('in if 3')
         soilTUpper <- if (exists("soilTUpper")) soilTUpper else i_sw_input_site$SoilTempC_atUpperBoundary
+        cat("SoilTUpper = ", soilTUpper, '\n')
       }
       if (sw_input_site_use["SoilTempC_atLowerBoundary"]) {
+        print('in if 4')
         soilTlower <- if (exists("soilTlower")) soilTlower else i_sw_input_site$SoilTempC_atLowerBoundary
         rSOILWAT2::swSite_SoilTemperatureConsts(swRunScenariosData[[sc]])[8] <- soilTlower
+        cat("SoilTLower = ", soilTlower, '\n')
       }
       if (prj_todos[["EstimateInitialSoilTemperatureForEachSoilLayer"]]) {
-        init.soilTprofile <- EstimateInitialSoilTemperatureForEachSoilLayer(layers_depth = layers_depth, lower.Tdepth = as.numeric(swRunScenariosData[[sc]]@site@SoilTemperatureConstants[10]), soilTupper = soilTUpper, soilTlower = soilTlower)  #lower.Tdepth needs to be adjusted if it changes in soilparam.in
+        print('in if 5')
+        init.soilTprofile <- EstimateInitialSoilTemperatureForEachSoilLayer(
+          layers_depth = layers_depth, lower.Tdepth = as.numeric(swRunScenariosData[[sc]]@site@SoilTemperatureConstants[10]),
+          soilTupper = soilTUpper, soilTlower = soilTlower)  #lower.Tdepth needs to be adjusted if it changes in soilparam.in
         #temporaly save data #TODO get this working
         #out.temp <- data.frame(i_sim, i_label, t(c(init.soilTprofile, rep(NA, times = SFSW2_glovars[["slyrs_maxN"]]-length(init.soilTprofile)))))
         #utils::write.csv(out.temp, file = file.path(project_paths[["dir_out_temp"]], .Platform$file.sep, flag.icounter, "_", "SoilTempC_InitProfile.csv"), quote = FALSE, row.names = FALSE)
+        print('end of if 5')
       }
 
       #adjust init soil temperatures to climatic conditions
       use_soil_temp <- sw_input_soils_use[paste0("SoilTemp_L", ld)]
+      print('pre if 6')
       if (any(use_soil_temp)) {
+        print('in if 6')
         temp <- seq_len(nrow(rSOILWAT2::swSoils_Layers(swRunScenariosData[[sc]])))
         if (exists("init.soilTprofile")) {
           rSOILWAT2::swSoils_Layers(swRunScenariosData[[sc]])[, 12][use_soil_temp] <- init.soilTprofile
@@ -1963,6 +2007,8 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
         if (prj_todos[["aon"]]$yearlyPET) {
           if (opt_verbosity[["print.debug"]]) print("Aggregation of yearlyPET")
           if (!exists("PET.yr")) PET.yr <- get_PET_yr(runDataSC, isim_time)
+          print("####### get_PET_yr ##########")
+          print(PET.yr)
 
           resMeans[nv] <- mean(PET.yr$val)
           resSDs[nv] <- stats::sd(PET.yr$val)
@@ -2003,6 +2049,10 @@ do_OneSite <- function(i_sim, i_SWRunInformation, i_sw_input_soillayers,
           if (opt_verbosity[["print.debug"]]) print("Aggregation of yearlymonthlyTemperateDrylandIndices")
           if (!exists("prcp.yr")) prcp.yr <- get_PPT_yr(runDataSC, isim_time)
           if (!exists("PET.yr")) PET.yr <- get_PET_yr(runDataSC, isim_time)
+          if (!exists("PET.yr")){ # todo: remove
+            print("pet.yr in #17")
+            print(PET.yr)
+          }
           if (!exists("temp.mo")) temp.mo <- get_Temp_mo(runDataSC, isim_time)
 
           di.ts <- calc_drylandindices(annualPPT = prcp.yr$ppt, annualPET = PET.yr$val,
