@@ -10,13 +10,13 @@
 #----------------------- DESCRIPTION OF SIMULATION PROJECT ---------------------
 
 # NOTE: The values cannot be changed once a rSFSW2 simulation project is set up. The
-#  values of settings (file demo/SFSW2_project_settings.R) may be changed from run to run.
+# values of settings (file demo/SFSW2_project_settings.R) may be changed from run to run.
 
 
 #------ Paths to simulation framework project folders
 project_paths <- list(
   dir_prj = dir_prj <- {# path to simulation project
-    temp <- "SFSW2_default_project" # "~/YOURPROJECT"
+    temp <- '/home/usgs/Documents/USGS/rSFSW2/demo/' # "~/YOURPROJECT"
 
     if (dir.exists(temp)) {
       if (interactive()) setwd(temp)
@@ -52,7 +52,7 @@ project_paths <- list(
   dir_out_traces = file.path(dir_out, "Time_Traces"),
 
   # Path from where external data are extraced
-  dir_external = dir_ex <- file.path("/Volumes", "YOURDRIVE", "BigData", "GIS", "Data"),
+  dir_external = dir_ex <- file.path("/media", "usgs", "SOILWAT_DATA", "GIS", "Data"),
   # Path to historic weather and climate data including
   #   Livneh, Maurer, ClimateAtlas, and NCEPCFSR data
   dir_ex_weather = file.path(dir_ex, "Weather_Past"),
@@ -96,6 +96,9 @@ fnames_in <- list(
 
   # Database with daily weather data
   fdbWeather = file.path(project_paths[["dir_in"]], "dbWeatherData.sqlite3"),
+  # database with daily humidity and wind speed data
+  # only created if UoIMetdata extraction set to 1
+  fdbWeatherDaily = file.path(project_paths[["dir_in"]], "dbWeatherDataDaily.sqlite3"),
 
   # Raster describing spatial interpretation of simulation experiment if scorp == "cell"
   fsimraster = file.path(project_paths[["dir_in"]], "sim_raster.grd")
@@ -141,7 +144,8 @@ opt_input <- list(
       "GriddedDailyWeatherFromNCEPCFSR_Global", 0,
       #   - Livneh et al. 2013: 1/16 degree res.; data expected at file.path(
       #     project_paths[["dir_ex_weather"]], "Livneh_NA_2013", "MONTHLY_GRIDS")
-      "GriddedDailyWeatherFromLivneh2013_NorthAmerica", 0,
+      "GriddedDailyWeatherFromLivneh2013_NorthAmerica", 1,
+      
 
       # Monthly PPT, Tmin, Tmax conditions: if using NEX or GDO-DCP-UC-LLNL,
       #   climate condition names must be of the form SCENARIO.GCM with SCENARIO being
@@ -153,7 +157,10 @@ opt_input <- list(
       # Mean monthly wind, relative humidity, and 100% - sunshine
       #   - NCDC 2005: data expected at file.path(project_paths[["dir_ex_weather"]],
       #     "ClimateAtlasUS")
-      "ExtractSkyDataFromNOAAClimateAtlas_USA", 0,
+      "ExtractSkyDataFromNOAAClimateAtlas_USA", 1,
+      #   mean daily humidity and daily wind speed
+      "GriddedDailyWeatherFromUoIMetdata", 0,
+      
       #   - Saha et al. 2010: project_paths[["dir_ex_weather"]], "NCEPCFSR_Global",
       #     "CFSR_weather_prog08032012")
       "ExtractSkyDataFromNCEPCFSR_Global", 0,
@@ -195,8 +202,8 @@ opt_input <- list(
   #   position of 'dw_source_priority' if available, if not then second etc.
   # Do not change/remove/add entries; only re-order to set different priorities
   dw_source_priority = c("DayMet_NorthAmerica", "LookupWeatherFolder",
-    "Maurer2002_NorthAmerica", "Livneh2013_NorthAmerica", "NRCan_10km_Canada",
-    "NCEPCFSR_Global"),
+    "Maurer2002_NorthAmerica", "NRCan_10km_Canada",
+    "NCEPCFSR_Global", "Livneh2013_NorthAmerica"),
 
   # Creation of dbWeather
   # Compression type of dbWeather; one value of eval(formals(memCompress)[[2]])
@@ -312,8 +319,8 @@ sim_time <- list(
   # spinup_N = startyr - simstartyr
   # years used for results = startyr:endyr
   simstartyr = 1979,
-  startyr = startyr <- 1980,
-  endyr = endyr <- 2010,
+  startyr = startyr <- 1979,
+  endyr = endyr <- 1980,
 
   #Future time period(s):
   # Each list element of 'future_yrs' will be applied to every climate.conditions
@@ -346,28 +353,29 @@ req_scens <- list(
   #   - If climate datafiles used, then in the order of data in the those datafiles
   #   - This is a list of all GCMs for CMIP5 provided by GDO-DCP-UC-LLNL: 37 RCP4.5, 35 RCP8.5
   #     Excluded: 'HadCM3' and 'MIROC4h' because data only available until 2035
-  models = c("RCP45.ACCESS1-0", "RCP45.ACCESS1-3", "RCP45.bcc-csm1-1",
-    "RCP45.bcc-csm1-1-m", "RCP45.BNU-ESM", "RCP45.CanESM2", "RCP45.CCSM4",
-    "RCP45.CESM1-BGC", "RCP45.CESM1-CAM5", "RCP45.CMCC-CM", "RCP45.CNRM-CM5",
-    "RCP45.CSIRO-Mk3-6-0", "RCP45.EC-EARTH", "RCP45.FGOALS-g2", "RCP45.FGOALS-s2",
-    "RCP45.FIO-ESM", "RCP45.GFDL-CM3", "RCP45.GFDL-ESM2G", "RCP45.GFDL-ESM2M",
-    "RCP45.GISS-E2-H-CC", "RCP45.GISS-E2-R", "RCP45.GISS-E2-R-CC", "RCP45.HadGEM2-AO",
-    "RCP45.HadGEM2-CC", "RCP45.HadGEM2-ES", "RCP45.inmcm4", "RCP45.IPSL-CM5A-LR",
-    "RCP45.IPSL-CM5A-MR", "RCP45.IPSL-CM5B-LR", "RCP45.MIROC-ESM", "RCP45.MIROC-ESM-CHEM",
-    "RCP45.MIROC5", "RCP45.MPI-ESM-LR", "RCP45.MPI-ESM-MR", "RCP45.MRI-CGCM3",
-    "RCP45.NorESM1-M", "RCP45.NorESM1-ME",
-
-             "RCP85.ACCESS1-0", "RCP85.ACCESS1-3", "RCP85.bcc-csm1-1",
-    "RCP85.bcc-csm1-1-m", "RCP85.BNU-ESM", "RCP85.CanESM2", "RCP85.CCSM4",
-    "RCP85.CESM1-BGC", "RCP85.CESM1-CAM5", "RCP85.CMCC-CM", "RCP85.CNRM-CM5",
-    "RCP85.CSIRO-Mk3-6-0", "RCP85.EC-EARTH", "RCP85.FGOALS-g2", "RCP85.FGOALS-s2",
-    "RCP85.FIO-ESM", "RCP85.GFDL-CM3", "RCP85.GFDL-ESM2G", "RCP85.GFDL-ESM2M",
-                          "RCP85.GISS-E2-R",                       "RCP85.HadGEM2-AO",
-    "RCP85.HadGEM2-CC", "RCP85.HadGEM2-ES", "RCP85.inmcm4", "RCP85.IPSL-CM5A-LR",
-    "RCP85.IPSL-CM5A-MR", "RCP85.IPSL-CM5B-LR", "RCP85.MIROC-ESM", "RCP85.MIROC-ESM-CHEM",
-    "RCP85.MIROC5", "RCP85.MPI-ESM-LR", "RCP85.MPI-ESM-MR", "RCP85.MRI-CGCM3",
-    "RCP85.NorESM1-M", "RCP85.NorESM1-ME"
-  ),
+  # models = c("RCP45.ACCESS1-0", "RCP45.ACCESS1-3", "RCP45.bcc-csm1-1",
+  #   "RCP45.bcc-csm1-1-m", "RCP45.BNU-ESM", "RCP45.CanESM2", "RCP45.CCSM4",
+  #   "RCP45.CESM1-BGC", "RCP45.CESM1-CAM5", "RCP45.CMCC-CM", "RCP45.CNRM-CM5",
+  #   "RCP45.CSIRO-Mk3-6-0", "RCP45.EC-EARTH", "RCP45.FGOALS-g2", "RCP45.FGOALS-s2",
+  #   "RCP45.FIO-ESM", "RCP45.GFDL-CM3", "RCP45.GFDL-ESM2G", "RCP45.GFDL-ESM2M",
+  #   "RCP45.GISS-E2-H-CC", "RCP45.GISS-E2-R", "RCP45.GISS-E2-R-CC", "RCP45.HadGEM2-AO",
+  #   "RCP45.HadGEM2-CC", "RCP45.HadGEM2-ES", "RCP45.inmcm4", "RCP45.IPSL-CM5A-LR",
+  #   "RCP45.IPSL-CM5A-MR", "RCP45.IPSL-CM5B-LR", "RCP45.MIROC-ESM", "RCP45.MIROC-ESM-CHEM",
+  #   "RCP45.MIROC5", "RCP45.MPI-ESM-LR", "RCP45.MPI-ESM-MR", "RCP45.MRI-CGCM3",
+  #   "RCP45.NorESM1-M", "RCP45.NorESM1-ME",
+  # 
+  #            "RCP85.ACCESS1-0", "RCP85.ACCESS1-3", "RCP85.bcc-csm1-1",
+  #   "RCP85.bcc-csm1-1-m", "RCP85.BNU-ESM", "RCP85.CanESM2", "RCP85.CCSM4",
+  #   "RCP85.CESM1-BGC", "RCP85.CESM1-CAM5", "RCP85.CMCC-CM", "RCP85.CNRM-CM5",
+  #   "RCP85.CSIRO-Mk3-6-0", "RCP85.EC-EARTH", "RCP85.FGOALS-g2", "RCP85.FGOALS-s2",
+  #   "RCP85.FIO-ESM", "RCP85.GFDL-CM3", "RCP85.GFDL-ESM2G", "RCP85.GFDL-ESM2M",
+  #                         "RCP85.GISS-E2-R",                       "RCP85.HadGEM2-AO",
+  #   "RCP85.HadGEM2-CC", "RCP85.HadGEM2-ES", "RCP85.inmcm4", "RCP85.IPSL-CM5A-LR",
+  #   "RCP85.IPSL-CM5A-MR", "RCP85.IPSL-CM5B-LR", "RCP85.MIROC-ESM", "RCP85.MIROC-ESM-CHEM",
+  #   "RCP85.MIROC5", "RCP85.MPI-ESM-LR", "RCP85.MPI-ESM-MR", "RCP85.MRI-CGCM3",
+  #   "RCP85.NorESM1-M", "RCP85.NorESM1-ME"
+  # ),
+  models = NULL,
 
   sources = c(
     # For each climate data set from which to extract, add an element like 'dataset1'

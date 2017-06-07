@@ -76,8 +76,8 @@ opt_verbosity <- list(
 #------ Output options
 opt_out_run <- list(
   # Write rSOILWAT2 input and output objects to disk for each SOILWAT2 simulation
-  saveRsoilwatInput = FALSE,
-  saveRsoilwatOutput = FALSE,
+  saveRsoilwatInput = TRUE,  # CHANGED
+  saveRsoilwatOutput = TRUE,   # CHANGED
 
   # Write data to big input files for experimental design x treatment design
   makeInputForExperimentalDesign = FALSE,
@@ -94,6 +94,7 @@ opt_out_run <- list(
 opt_chunks <- list(
   # chunk_size == 1e4 && n_extract 6e4 will use about 30 GB of memory
   ExtractSkyDataFromNOAAClimateAtlas_USA = 10000,
+  #GriddedDailyWeatherFromUoIMetdata = 10000,
   # Extracting data from NCEP/CFSR is also OS-limited by the number of concurrently open
   #   files (on 'unix' platforms, check with 'ulimit -a')
   ExtractSkyDataFromNCEPCFSR_Global = 100,

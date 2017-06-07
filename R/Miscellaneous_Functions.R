@@ -180,11 +180,13 @@ dir.remove <- function(dir) {
 
 
 dir_safe_create <- function(paths, showWarnings = FALSE, recursive = TRUE, mode = "0777") {
+  print(1000)
   temp <- lapply(paths, function(path) {
       if (!is.null(path) && !is.na(path) && is.character(path) && nchar(path) > 0)
         try(dir.create2(path, showWarnings = showWarnings, recursive = recursive,
           mode = mode), silent = TRUE)
     })
+  print(1001)
 
   invisible(temp)
 }

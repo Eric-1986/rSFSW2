@@ -248,6 +248,7 @@ do_prior_TableLookups <- function(SFSW2_prj_meta, SFSW2_prj_inputs, resume = TRU
   names(done_prior) <- names(do_prior_lookup)
 
   if (any(SFSW2_prj_inputs[["create_treatments"]] %in% names(do_prior_lookup))) {
+    print('SFSW2_prj_inputs[["create_treatments"]]')
 
     do_prior_lookup[["LookupEvapCoeffFromTable"]] <- list(
       flag = "LookupEvapCoeffFromTable",
@@ -280,6 +281,8 @@ do_prior_TableLookups <- function(SFSW2_prj_meta, SFSW2_prj_inputs, resume = TRU
       fill_pattern = "snowd",
       fill_value = 76,    # 76 kg/m3 = median of medians over 6 sites in Colorado and Wyoming: Judson, A. & Doesken, N. (2000) Density of Freshly Fallen Snow in the Central Rocky Mountains. Bulletin of the American Meteorological Society, 81, 1577-1587.
       datafile = SFSW2_prj_meta[["fnames_in"]][["fclimnorm"]])
+    print("###### below is a fclimnorm in prior calculations ########")
+    print(SFSW2_prj_meta[["fnames_in"]][["fclimnorm"]])
 
     for (pc in do_prior_lookup) {
       if (any(SFSW2_prj_inputs[["create_treatments"]] == pc$flag)) {

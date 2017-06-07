@@ -68,7 +68,7 @@ actions <- list(
 ##############################################################################
 #------ 1) CREATE A NEW SIMULATION PROJECT (DO ONCE) -------------------------
 
-dir_prj <- "SFSW2_default_project"
+dir_prj <- '/home/usgs/Documents/USGS/rSFSW2/demo/'
 
 if (FALSE) {
   # If this is a test project:
@@ -76,7 +76,7 @@ if (FALSE) {
   #   * if !interactive: current working directory must be folder of test projects,
   #       * e.g., rSFSW2_tools/Test_projects/Test4_AllOverallAggregations
   if (interactive()) {
-    dir_prj <- normalizePath(file.path(".", "Test_projects", "Test4_AllOverallAggregations_snow"))
+    dir_prj <- normalizePath('/home/usgs/Documents/USGS/rSFSW2/demo/')
     setwd(dir_prj)
   }
 
@@ -94,6 +94,7 @@ if (file.exists(fmeta)) {
 } else {
 
   # 1a) Setup default project infrastructure
+  print(99)
   setup_rSFSW2_project_infrastructure(dir_prj)
 
   # 1b) In text editor: specify project description/metadata ("SFSW2_project_description.R")
@@ -157,6 +158,7 @@ if (any(unlist(actions[c("sim_create", "sim_execute", "sim_aggregate", "concat_d
 
   SFSW2_prj_meta <- simulate_SOILWAT2_experiment(actions, SFSW2_prj_meta, SFSW2_prj_inputs,
     t_job_start, opt_behave, opt_parallel, opt_chunks, opt_out_run, opt_verbosity)
+  print("RUNNING SIMULATION EXPERIMENT !@#!@^%$$&%^&*^&*(*&&)(&()&()&&*^&*&^%&$#$#%$@$#@$#!^")
 }
 
 
